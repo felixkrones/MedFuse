@@ -34,8 +34,9 @@ def main():
     test_patients = [x for x in folders if x in test_set]
     
     assert len(set(train_patients) & set(test_patients)) == 0
-
+    print("Move to train")
     move_to_partition(args, train_patients, "train")
+    print("Move to test")
     move_to_partition(args, test_patients, "test")
 
 

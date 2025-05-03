@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
-
+import gzip
 import csv
 import numpy as np
 import os
@@ -24,7 +24,7 @@ def read_admissions_table(path):
 
     # admits = dataframe_from_csv(path)
     admits = pd.read_csv(path) #header=header, index_col=index_col
-    admits = admits[['subject_id', 'hadm_id', 'admittime', 'dischtime', 'deathtime', 'ethnicity']] # missing DIAGNOSIS
+    admits = admits[['subject_id', 'hadm_id', 'admittime', 'dischtime', 'deathtime', 'race']] # missing DIAGNOSIS
     admits.admittime = pd.to_datetime(admits.admittime)
     admits.dischtime = pd.to_datetime(admits.dischtime)
     admits.deathtime = pd.to_datetime(admits.deathtime)
@@ -41,24 +41,13 @@ def read_icustays_table(path):
 
 def read_icd_diagnoses_table(path):
 
-    codes = pd.read_csv(f'{path}/d_icd_diagnoses.csv')
+    codes = pd.read_csv(f'{path}/d_icd_diagnoses.csv.gz')
     # dataframe_from_csv(os.path.join(mimic3_path, 'D_ICD_DIAGNOSES.csv'))
     codes = codes[['icd_code', 'long_title']]
-    diagnoses = pd.read_csv(f'{path}/diagnoses_icd.csv')
+    diagnoses = pd.read_csv(f'{path}/diagnoses_icd.csv.gz')
     diagnoses = diagnoses.merge(codes, how='inner', left_on='icd_code', right_on='icd_code')
     diagnoses[['subject_id', 'hadm_id', 'seq_num']] = diagnoses[['subject_id', 'hadm_id', 'seq_num']].astype(int)
     return diagnoses
-
-
-def read_events_table_by_row(mimic3_path, table):
-    nb_rows = {'chartevents': 329499788, 'labevents': 122103667, 'outputevents': 4457381}
-    csv_files = {'chartevents': 'icu/chartevents.csv', 'labevents': 'hosp/labevents.csv', 'outputevents': 'icu/outputevents.csv'}
-    # nb_rows = {'chartevents': 330712484, 'labevents': 27854056, 'outputevents': 4349219}
-    reader = csv.DictReader(open(os.path.join(mimic3_path, csv_files[table.lower()]), 'r'))
-    for i, row in enumerate(reader):
-        if 'stay_id' not in row:
-            row['stay_id'] = ''
-        yield row, i, nb_rows[table.lower()]
 
 
 def count_icd_codes(diagnoses, output_path=None):
@@ -197,31 +186,65 @@ def read_events_table_and_break_up_by_subject(mimic3_path, table, output_path,
 
     # nb_rows_dict = {'chartevents': 330712484, 'labevents': 27854056, 'outputevents': 4349219}
     nb_rows_dict = {'chartevents': 329499788, 'labevents': 122103667, 'outputevents': 4457381}
-    
+    csv_files_dict = {'chartevents': 'icu/chartevents.csv', 'labevents': 'hosp/labevents.csv', 'outputevents': 'icu/outputevents.csv.gz'}
+    csv_file = csv_files_dict[table.lower()]
     nb_rows = nb_rows_dict[table.lower()]
-    # import pdb;pdb.set_trace()
+    file_path = os.path.join(mimic3_path, csv_file)
 
-    for row, row_no, _ in tqdm(read_events_table_by_row(mimic3_path, table), total=nb_rows,
-                                                        desc='Processing {} table'.format(table)):
+    print('Reading {} table from {}'.format(table, file_path))
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        print('Error reading {} table from {}: {}'.format(table, file_path, e))
+        raise
 
-        if (subjects_to_keep is not None) and (row['subject_id'] not in subjects_to_keep):
+    # Handle missing stay_id
+    if 'stay_id' not in df.columns:
+        df['stay_id'] = ''
+    else:
+        df['stay_id'] = df['stay_id'].fillna('')
+
+    print(f"Start processing {len(df)} rows from {table} table, for {len(subjects_to_keep)} subjects and {len(items_to_keep)} items")
+    
+    # Check how many subject_ids from df are in subjects_to_keep
+    if subjects_to_keep is not None:
+        print(f"Found {df[df['subject_id'].astype(str).isin(subjects_to_keep)]['subject_id'].nunique()} subject_ids in {table} that are in subjects_to_keep")
+    if items_to_keep is not None:
+        print(f"Found {df[df['itemid'].astype(int).isin(items_to_keep)]['itemid'].nunique()} itemids in {table} that are in items_to_keep. Example: {df['itemid'].astype(int).unique()[:5]}")
+
+    df_aux_test = df[["subject_id", "itemid"]].drop_duplicates()
+    df_aux_test = df_aux_test[df_aux_test['subject_id'].astype(str).isin(subjects_to_keep)]
+    df_aux_test = df_aux_test[df_aux_test['itemid'].astype(int).isin(items_to_keep)]
+    print(f"Found {df_aux_test.shape[0]} unique subject_id and itemid pairs in {table} that are in subjects_to_keep and items_to_keep")
+    count_subject_ids_found = 0
+    count_events_found = 0
+    count_events_writen = 0
+    for row in tqdm(df.itertuples(index=False), total=len(df), desc='Processing {} table'.format(table)):
+        if (subjects_to_keep is not None) and (str(row.subject_id) not in subjects_to_keep):
             continue
-        if (items_to_keep is not None) and (row['itemid'] not in items_to_keep):
+        count_subject_ids_found += 1
+        if (items_to_keep is not None) and (str(row.itemid) not in items_to_keep):
             continue
-        
-        # import pdb; pdb.set_trace()
-        # value = row['valueuom'] if table=='OUTPUTEVENTS' else row['valuenum']
-        row_out = {'subject_id': row['subject_id'],
-                   'hadm_id': row['hadm_id'],
-                   'stay_id': '' if 'stay_id' not in row else row['stay_id'],
-                   'charttime': row['charttime'],
-                   'itemid': row['itemid'],
-                   'value': row['value'],
-                   'valuenum': row['valueuom'] if table=='OUTPUTEVENTS' else row['valuenum']}
-        if data_stats.curr_subject_id != '' and data_stats.curr_subject_id != row['subject_id']:
+        count_events_found += 1
+        row_out = {'subject_id': row.subject_id,
+                'hadm_id': row.hadm_id,
+                'stay_id': row.stay_id,
+                'charttime': row.charttime,
+                'itemid': row.itemid,
+                'value': row.value,
+                'valuenum': row.valueuom if table == 'OUTPUTEVENTS' else row.valuenum}
+        if data_stats.curr_subject_id != '' and data_stats.curr_subject_id != row.subject_id:
+            # print('write_current_observations in for loop')
+            count_events_writen += 1
             write_current_observations()
+        # else:
+        #     print('not write_current_observations in for loop')
         data_stats.curr_obs.append(row_out)
-        data_stats.curr_subject_id = row['subject_id']
+        data_stats.curr_subject_id = row.subject_id
+    print(f"Found {count_events_found} events in {table} table and wrote {count_events_writen} events to file, after finding {count_subject_ids_found} subject_ids")
 
     if data_stats.curr_subject_id != '':
+        print('write_current_observations at end of for loop')
         write_current_observations()
+    else:
+        print('not write_current_observations at end of for loop')

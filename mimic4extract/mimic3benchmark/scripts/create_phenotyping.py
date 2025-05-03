@@ -69,7 +69,8 @@ def process_partition(args, definitions, code_to_group, id_to_group, group_to_id
                             group_id = group_to_id[group]
                             cur_labels[group_id] = 1
                         else:
-                            print(f'{code} code not found')    
+                            pass
+                            # print(f'{code} code not found')    
                 # import pdb; pdb.set_trace()
                 cur_labels = [x for (i, x) in enumerate(cur_labels)
                               if definitions[id_to_group[i]]['use_in_benchmark']]
