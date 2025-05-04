@@ -3,12 +3,11 @@ import pandas as pd
 import numpy as np
 
 
+ehr_data_dir = '/data/wolf6245/src/MedFuse/mimic4extract/data/phenotyping'
+split_file = "/data/wolf6245/src/mm_study/data/a_raw/MIMIC/MIMIC-CXR-JPG/cxr_jpg/split.csv.gz"
+cxr_data_dir = '/data/wolf6245/src/MedFuse/mimic4extract/data'
 
-ehr_data_dir = 'data/mimic-iv-extracted/phenotyping'
-
-cxr_data_dir = 'data/physionet.org/files/mimic-cxr-jpg/2.0.0'
-
-cxr_splits = pd.read_csv(f'{cxr_data_dir}/mimic-cxr-2.0.0-split.csv')
+cxr_splits = pd.read_csv(split_file)#f'{cxr_data_dir}/mimic-cxr-2.0.0-split.csv')
 print(f'before update {cxr_splits.split.value_counts()}')
 
 ehr_split_val = pd.read_csv(f'{ehr_data_dir}/val_listfile.csv')

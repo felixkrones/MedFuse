@@ -22,6 +22,7 @@ from arguments import args_parser
 parser = args_parser()
 # add more arguments here ...
 args = parser.parse_args()
+args.ehr_data_dir = 'mimic4extract/data'
 print(args)
 
 if args.missing_token is not None:
@@ -35,7 +36,7 @@ torch.manual_seed(seed)
 np.random.seed(seed)
 
 def read_timeseries(args):
-    path = f'{args.ehr_data_dir}/{args.task}/train/14991576_episode3_timeseries.csv'
+    path = f'{args.ehr_data_dir}/{args.task}/train/10003502_episode1_timeseries.csv'
     ret = []
     with open(path, "r") as tsfile:
         header = tsfile.readline().strip().split(',')

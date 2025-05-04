@@ -21,13 +21,14 @@ class MIMICCXR(Dataset):
        'Lung Opacity', 'No Finding', 'Pleural Effusion', 'Pleural Other',
        'Pneumonia', 'Pneumothorax', 'Support Devices']
         self.filenames_to_path = {path.split('/')[-1].split('.')[0]: path for path in paths}
+        print(f"Found {len(self.filenames_to_path)} images")
 
-        metadata = pd.read_csv(f'{self.data_dir}/mimic-cxr-2.0.0-metadata.csv')
-        labels = pd.read_csv(f'{self.data_dir}/mimic-cxr-2.0.0-chexpert.csv')
+        metadata = pd.read_csv(f'/data/wolf6245/src/mm_study/data/a_raw/MIMIC/MIMIC-CXR-JPG/cxr_jpg/metadata.csv.gz')
+        labels = pd.read_csv(f'/data/wolf6245/src/mm_study/data/a_raw/MIMIC/MIMIC-CXR-JPG/cxr_jpg/chexpert.csv.gz')
         labels[self.CLASSES] = labels[self.CLASSES].fillna(0)
         labels = labels.replace(-1.0, 0.0)
         
-        splits = pd.read_csv(f'{self.data_dir}/mimic-cxr-ehr-split.csv')
+        splits = pd.read_csv(f'/data/wolf6245/src/MedFuse/mimic4extract/data/mimic-cxr-ehr-split.csv')
 
 
         metadata_with_labels = metadata.merge(labels[self.CLASSES+['study_id'] ], how='inner', on='study_id')
@@ -93,7 +94,9 @@ def get_cxr_datasets(args):
     # if os.path.exists(filepath):
     #     paths = np.load(filepath)
     # else:
+    print(f"Loading data from {data_dir}")
     paths = glob.glob(f'{data_dir}/resized/**/*.jpg', recursive = True)
+    print(f"Found {len(paths)} images")
     # np.save(filepath, paths)
     
     dataset_train = MIMICCXR(paths, args, split='train', transform=transforms.Compose(train_transforms))

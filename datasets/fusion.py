@@ -106,7 +106,7 @@ class MIMIC_CXR_EHR(Dataset):
 def loadmetadata(args):
 
     data_dir = args.cxr_data_dir
-    cxr_metadata = pd.read_csv(f'{data_dir}/mimic-cxr-2.0.0-metadata.csv')
+    cxr_metadata = pd.read_csv(f'/data/wolf6245/src/mm_study/data/a_raw/MIMIC/MIMIC-CXR-JPG/cxr_jpg/metadata.csv.gz')
     icu_stay_metadata = pd.read_csv(f'{args.ehr_data_dir}/root/all_stays.csv')
     columns = ['subject_id', 'stay_id', 'intime', 'outtime']
     
