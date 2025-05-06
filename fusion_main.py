@@ -22,7 +22,7 @@ from arguments import args_parser
 parser = args_parser()
 # add more arguments here ...
 args = parser.parse_args()
-args.ehr_data_dir = 'mimic4extract/data'
+# args.ehr_data_dir = 'mimic4extract/data'
 print(args)
 
 if args.missing_token is not None:

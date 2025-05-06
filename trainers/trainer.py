@@ -40,7 +40,7 @@ class Trainer():
 
     def load_ehr_pheno(self, load_state):
         
-        checkpoint = torch.load(load_state)
+        checkpoint = torch.load(load_state, weights_only=False)
         own_state = self.model.state_dict()
 
         for name, param in checkpoint['state_dict'].items():
@@ -55,8 +55,9 @@ class Trainer():
 
     def load_state(self):
         if self.args.load_state is None:
+            print('---------no checkpoint to load---------')
             return
-        checkpoint = torch.load(self.args.load_state)
+        checkpoint = torch.load(self.args.load_state, weights_only=False)
 
 
         own_state = self.model.state_dict()
@@ -68,7 +69,7 @@ class Trainer():
             if isinstance(param, torch.nn.Parameter):
                 param = param.data
             own_state[name].copy_(param)
-        print(f'loaded model checkpoint from {self.args.load_state}')
+        print(f'---------loaded model checkpoint from {self.args.load_state}---------')
 
     def load_cxr_pheno(self, load_state):
         checkpoint = torch.load(load_state)
@@ -236,22 +237,22 @@ class Trainer():
                 auc_scores = ret['auc_scores']
                 auprc_scores = ret['auprc_scores']
 
-                accute_aurocs = np.mean(auc_scores) if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'acute'])
-                mixed_aurocs = np.mean(auc_scores) if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'mixed'])
-                chronic_aurocs = np.mean(auc_scores) if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'chronic'])
+                accute_aurocs = np.mean(auc_scores) # if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'acute'])
+                mixed_aurocs = np.mean(auc_scores) # if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'mixed'])
+                chronic_aurocs = np.mean(auc_scores) # if self.args.labels_set != 'pheno' else np.mean(auc_scores[self.levels == 'chronic'])
                 
-                accute_auprc = np.mean(auprc_scores) if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'acute'])
-                mixed_auprc = np.mean(auprc_scores) if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'mixed'])
-                chronic_auprc = np.mean(auprc_scores) if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'chronic'])
+                accute_auprc = np.mean(auprc_scores) # if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'acute'])
+                mixed_auprc = np.mean(auprc_scores) # if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'mixed'])
+                chronic_auprc = np.mean(auprc_scores) # if self.args.labels_set != 'pheno' else np.mean(auprc_scores[self.levels == 'chronic'])
 
 
-                accute_aurocs_ci = np.mean(ci_auroc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'acute'], axis=0)
-                mixed_aurocs_ci = np.mean(ci_auroc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'mixed'], axis=0)
-                chronic_aurocs_ci = np.mean(ci_auroc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'chronic'], axis=0)
+                accute_aurocs_ci = np.mean(ci_auroc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'acute'], axis=0)
+                mixed_aurocs_ci = np.mean(ci_auroc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'mixed'], axis=0)
+                chronic_aurocs_ci = np.mean(ci_auroc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auroc_all[self.levels == 'chronic'], axis=0)
                 
-                accute_auprc_ci = np.mean(ci_auprc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'acute'], axis=0)
-                mixed_auprc_ci = np.mean(ci_auprc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'mixed'], axis=0)
-                chronic_auprc_ci = np.mean(ci_auprc_all, axis=0) if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'chronic'], axis=0)
+                accute_auprc_ci = np.mean(ci_auprc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'acute'], axis=0)
+                mixed_auprc_ci = np.mean(ci_auprc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'mixed'], axis=0)
+                chronic_auprc_ci = np.mean(ci_auprc_all, axis=0) # if self.args.labels_set != 'pheno' else np.mean(ci_auprc_all[self.levels == 'chronic'], axis=0)
 
                 # import pdb; pdb.set_trace()
 
