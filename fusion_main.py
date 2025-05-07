@@ -36,7 +36,10 @@ torch.manual_seed(seed)
 np.random.seed(seed)
 
 def read_timeseries(args):
-    path = f'{args.ehr_data_dir}/{args.task}/train/10003502_episode1_timeseries.csv'
+    path = f'{args.ehr_data_dir}/{args.task}/train/'
+    files_aux = os.listdir(path)
+    path = os.path.join(path, files_aux[0])
+    #path = f'{args.ehr_data_dir}/{args.task}/train/10003502_episode1_timeseries.csv'
     ret = []
     with open(path, "r") as tsfile:
         header = tsfile.readline().strip().split(',')

@@ -28,7 +28,7 @@ class MIMICCXR(Dataset):
         labels[self.CLASSES] = labels[self.CLASSES].fillna(0)
         labels = labels.replace(-1.0, 0.0)
         
-        splits = pd.read_csv(f'/data/wolf6245/src/MedFuse/mimic4extract/data/mimic-cxr-ehr-split.csv')
+        splits = pd.read_csv(args.image_split_file)
 
 
         metadata_with_labels = metadata.merge(labels[self.CLASSES+['study_id'] ], how='inner', on='study_id')
@@ -94,9 +94,13 @@ def get_cxr_datasets(args):
     # if os.path.exists(filepath):
     #     paths = np.load(filepath)
     # else:
-    print(f"Loading data from {data_dir}")
-    paths = glob.glob(f'{data_dir}/resized/**/*.jpg', recursive = True)
-    print(f"Found {len(paths)} images")
+    if 'folds' in data_dir:
+        data_dir_aux = data_dir.split('folds')[0]
+    else:
+        data_dir_aux = data_dir
+    print(f"Loading data from {data_dir} and images from {data_dir_aux}resized")
+    paths = glob.glob(f'{data_dir_aux}/resized/**/*.jpg', recursive = True)
+    print(f"Found {len(paths)} images.")
     # np.save(filepath, paths)
     
     dataset_train = MIMICCXR(paths, args, split='train', transform=transforms.Compose(train_transforms))

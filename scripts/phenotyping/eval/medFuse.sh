@@ -8,5 +8,6 @@ CUDA_VISIBLE_DEVICES=0 CUDA_LAUNCH_BLOCKING=1 python fusion_main.py \
 --fusion_type lstm \
 --save_dir checkpoints/felix/phenotyping_eval/medFuse/fold_0 \
 --load_state checkpoints/felix/phenotyping/medFuse/fold_0/best_checkpoint.pth.tar \
---ehr_data_dir mimic4extract/data/fold_0 \
---cxr_data_dir mimic4extract/data/fold_0
+--ehr_data_dir mimic4extract/data/folds/fold_0 \
+--cxr_data_dir mimic4extract/data/folds/fold_0 \
+--image_split_file mimic4extract/data/folds/fold_0/mimic-cxr-ehr-split.csv
