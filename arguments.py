@@ -63,7 +63,7 @@ def args_parser():
     parser.add_argument('--ehr_data_dir', type=str, help='Path to the data of phenotyping fusion_type',
                         default='mimic4extract/data')
     parser.add_argument('--cxr_data_dir', type=str, help='Path to the data of phenotyping fusion_type',
-                        default='/data/wolf6245/src/MedFuse/mimic4extract/data')
+                        default='mimic4extract/data')
     parser.add_argument('--save_dir', type=str, help='Directory relative which all output files are stored',
                     default='checkpoints')
 

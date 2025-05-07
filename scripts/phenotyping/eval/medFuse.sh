@@ -6,5 +6,7 @@ CUDA_VISIBLE_DEVICES=0 CUDA_LAUNCH_BLOCKING=1 python fusion_main.py \
 --vision_num_classes 14 --num_classes 6 \
 --data_pairs paired_ehr_cxr \
 --fusion_type lstm \
---save_dir checkpoints/felix/phenotyping_eval/medFuse \
---load_state checkpoints/felix/phenotyping/medFuse/best_checkpoint.pth.tar
+--save_dir checkpoints/felix/phenotyping_eval/medFuse/fold_0 \
+--load_state checkpoints/felix/phenotyping/medFuse/fold_0/best_checkpoint.pth.tar \
+--ehr_data_dir mimic4extract/data/fold_0 \
+--cxr_data_dir mimic4extract/data/fold_0
