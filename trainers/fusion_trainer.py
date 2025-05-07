@@ -131,7 +131,6 @@ class FusionTrainer(Trainer):
         # ehr_features = torch.FloatTensor()
         # cxr_features = torch.FloatTensor()
         outGT = torch.FloatTensor().to(self.device)
-        outGT = torch.FloatTensor().to(self.device)
         outPRED = torch.FloatTensor().to(self.device)
 
         with torch.no_grad():

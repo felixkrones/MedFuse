@@ -4,7 +4,7 @@ CUDA_VISIBLE_DEVICES=0 CUDA_LAUNCH_BLOCKING=1 python fusion_main.py \
 --mode train \
 --epochs 30 --batch_size 16 --lr 0.00007 \
 --vision_num_classes 14 --num_classes 6 \
---data_pairs partial_ehr_cxr \
+--data_pairs paired_ehr_cxr \
 --fusion_type lstm \
 --save_dir checkpoints/felix/phenotyping/medFuse \
 --load_state_cxr checkpoints/cxr_rad_full/best_checkpoint.pth.tar \

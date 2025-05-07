@@ -77,8 +77,14 @@ class MIMIC_CXR_EHR(Dataset):
                 ehr_data, labels_ehr = self.ehr_ds[self.ehr_files_paired[index]]
                 cxr_data, labels_cxr = self.cxr_ds[self.cxr_files_paired[index]]
             else:
-                index = random.randint(0, len(self.ehr_files_unpaired)-1) 
-                ehr_data, labels_ehr = self.ehr_ds[self.ehr_files_unpaired[index]]
+                # if self.split in ['val', 'test']:
+                #     # Make deterministic index during validation / test
+                #     index_unpaired = index % len(self.ehr_files_unpaired)
+                # else:
+                #     # Keep random for training (optional, not harmful)
+                #     index_unpaired = random.randint(0, len(self.ehr_files_unpaired)-1)
+                index_unpaired = random.randint(0, len(self.ehr_files_unpaired)-1)
+                ehr_data, labels_ehr = self.ehr_ds[self.ehr_files_unpaired[index_unpaired]]
                 cxr_data, labels_cxr = None, None
             return ehr_data, cxr_data, labels_ehr, labels_cxr
 

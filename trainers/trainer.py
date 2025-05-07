@@ -72,7 +72,7 @@ class Trainer():
         print(f'---------loaded model checkpoint from {self.args.load_state}---------')
 
     def load_cxr_pheno(self, load_state):
-        checkpoint = torch.load(load_state)
+        checkpoint = torch.load(load_state, weights_only=False)
 
         own_state = self.model.state_dict()
 
@@ -84,7 +84,7 @@ class Trainer():
                 param = param.data
             own_state[name].copy_(param)
 
-        print(f'loaded cxr checkpoint from {load_state}')
+        print(f'--------loaded cxr checkpoint from {load_state}--------')
 
 
     def freeze(self, model):
